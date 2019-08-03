@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    html,body{
+        width: 100%;
+        height: 100%;
+    }
+    body{
+        background: url("img/bg.jpg") center center no-repeat;
+        background-size:cover;
+        overflow: hidden;
+    }
+    .play{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+    }
+    .specter{
+        width: 300px;
+        height: 300px;
+        background: url("img/yy.png") 0 0 no-repeat;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .specter>span{
+        font-size: 50px;
+        position: absolute;
+        left: 95px;
+        top: 210px;
+        text-shadow: -5px 5px 5px #3e437a;
+    }
+</style>
+<body>
+<img class="play" src="img/play.png" alt="">
+<audio src="img/bg.ogg"></audio>
+<!--<div class="specter"><span>k</span></div>-->
+<script>
+    let oPlay=document.querySelector(".play");
+    let oAudio=document.querySelector("audio");
+
+    let list=[];
+    oPlay.onclick=function () {
+        this.parentElement.removeChild(oPlay);
+        oAudio.play();
+        setInterval(function () {
+            let s=new Specter();
+            s.fly();
+            list.push(s)
+        },1000)
+    };
+    class Specter{
+        constructor(){
+        let oSpecter=document.createElement("div");
+        let oSpan=document.createElement("span");
+        let letter=this.randomLetter();
+        oSpecter.appendChild(oSpan);
+        document.body.appendChild(oSpecter);
+        oSpan.innerText=letter;
+
+        oSpecter.className="specter "+letter;
+        oSpecter.style.top=window.screen.height-40+"px";
+        oSpecter.style.left=Math.random()*(window.screen.width-300)+"px";
+        this.oSpecter=oSpecter;
+    }
+    randomLetter(){
+        let randomNum=Math.floor(Math.random()*(90-65+1))+65;
+        let letter=String.fromCharCode(randomNum);
+        return letter;
+    }
+    fly(){
+        let begin=parseInt(window.getComputedStyle(this.oSpecter).top);
+        this.timer=setInterval(()=> {
+            begin-=20;
+            if (begin<=-300){
+                this.bomb();
+            }
+            this.oSpecter.style.top=begin+"px";
+        },200)
+    }
+    bomb(){
+        clearInterval(this.timer);
+        document.body.removeChild(this.oSpecter);
+    }
+    }
+    document.body.onkeydown=function (event) {
+        let key=event.key.toUpperCase();
+        let oFindDiv=document.querySelector("."+key);
+        let findIndex=list.findIndex(function (currentValue) {
+            return currentValue.oSpecter===oFindDiv;
+        });
+        if (findIndex===-1) return;
+        let currentSpecter=list[findIndex];
+        currentSpecter.bomb();
+        list.splice(findIndex,1)
+    }
+</script>
+</body>
+</html>
